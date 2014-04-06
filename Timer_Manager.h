@@ -9,16 +9,12 @@
 
 struct Timer
 {
-	LARGE_INTEGER frequency;
 	LARGE_INTEGER t1, t2;
-	double ElapsedTime;
 
 	Timer()
 	{
-		frequency.QuadPart = 0;
 		t1.QuadPart = 0;
 		t2.QuadPart = 0;
-		ElapsedTime = 0;
 	}
 };
 
@@ -28,22 +24,28 @@ private:
 	std::map<std::string, Timer> Timers;
 	std::map<std::string, Timer>::iterator Timers_It;
 
-	void AddTimerToMap(std::string Name, Timer newTimer);
+	static void AddTimerToMap(std::string Name, Timer newTimer);
 
-	bool CheckTimersForInstance(std::string Name);
+	static bool CheckTimersForInstance(std::string Name);
+
+	Timer_Manager();
+
+	Timer_Manager(Timer_Manager const&);
+
+	void operator = (Timer_Manager const&);
+
+	LARGE_INTEGER Frequency;
 
 public:
-	bool CreateNewTimer(std::string Name);
+	static Timer_Manager& Instance();
 
-	bool GetPerformanceFrequency(std::string Name);
+	static bool CreateNewTimer(std::string Name);
 
-	bool GetStartTime(std::string Name);
+	static bool GetStartTime(std::string Name);
 
-	bool GetStopTime(std::string Name);
+	static bool GetStopTime(std::string Name);
 
-	bool CalculateElapsedTime(std::string Name);
-
-	bool GetElapsedTime(std::string Name, double &Time);
+	static bool GetElapsedTime(std::string Name, double &Time);
 };
 
 #endif

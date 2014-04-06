@@ -1,16 +1,27 @@
 #include "Timer_Manager.h"
 
+Timer_Manager::Timer_Manager()
+{
+	QueryPerformanceFrequency(&Instance().Frequency);
+}
+
+Timer_Manager& Timer_Manager::Instance()
+{
+	static Timer_Manager Time;
+	return Time;
+}
+
 void Timer_Manager::AddTimerToMap(std::string Name, Timer newTimer)
 {
-	Timers.insert(std::pair<std::string, Timer>(Name, newTimer));
+	Instance().Timers.insert(std::pair<std::string, Timer>(Name, newTimer));
 }
 
 bool Timer_Manager::CheckTimersForInstance(std::string Name)
 {
 	bool Success = false;
-	for (Timers_It = Timers.begin(); Timers_It != Timers.end(); ++Timers_It)
+	for (Instance().Timers_It = Instance().Timers.begin(); Instance().Timers_It != Instance().Timers.end(); ++Instance().Timers_It)
 	{
-		if ((*Timers_It).first == Name)
+		if ((*Instance().Timers_It).first == Name)
 		{
 			Success = true;
 			break;
@@ -22,23 +33,11 @@ bool Timer_Manager::CheckTimersForInstance(std::string Name)
 bool Timer_Manager::CreateNewTimer(std::string Name)
 {
 	bool Success = false;
-	if (CheckTimersForInstance(Name) == false)
+	if (Instance().CheckTimersForInstance(Name) == false)
 	{
 		Timer Temp;
-		AddTimerToMap(Name, Temp);
+		Instance().AddTimerToMap(Name, Temp);
 		Success = true;
-	}
-	return Success;
-}
-
-bool Timer_Manager::GetPerformanceFrequency(std::string Name)
-{
-	// get ticks per second
-	bool Success = false;
-	if (CheckTimersForInstance(Name) == true)
-	{
-			QueryPerformanceFrequency(&(*Timers_It).second.frequency);
-			Success = true;
 	}
 	return Success;
 }
@@ -47,10 +46,10 @@ bool Timer_Manager::GetStartTime(std::string Name)
 {
 	// Set t1 to start time
 	bool Success = false;
-	if (CheckTimersForInstance(Name) == true)
+	if (Instance().CheckTimersForInstance(Name) == true)
 	{
-			QueryPerformanceCounter(&(*Timers_It).second.t1);
-			Success = true;
+		QueryPerformanceCounter(&(*Instance().Timers_It).second.t1);
+		Success = true;
 	}
 	return Success;
 }
@@ -59,21 +58,9 @@ bool Timer_Manager::GetStopTime(std::string Name)
 {
 	// Set t2 to stp time
 	bool Success = false;
-	if (CheckTimersForInstance(Name) == true)
+	if (Instance().CheckTimersForInstance(Name) == true)
 	{
-			QueryPerformanceCounter(&(*Timers_It).second.t2);
-			Success = true;
-	}
-	return Success;
-}
-
-bool Timer_Manager::CalculateElapsedTime(std::string Name)
-{
-	// Elapsed time in Nanoseconds
-	bool Success = false;
-	if (CheckTimersForInstance(Name) == true)
-	{
-		(*Timers_It).second.ElapsedTime = ((*Timers_It).second.t2.QuadPart - (*Timers_It).second.t1.QuadPart) * 1000.0 / (*Timers_It).second.frequency.QuadPart;
+		QueryPerformanceCounter(&(*Instance().Timers_It).second.t2);
 		Success = true;
 	}
 	return Success;
@@ -82,9 +69,9 @@ bool Timer_Manager::CalculateElapsedTime(std::string Name)
 bool Timer_Manager::GetElapsedTime(std::string Name, double &Time)
 {
 	bool Success = false;
-	if (CheckTimersForInstance(Name) == true)
+	if (Instance().CheckTimersForInstance(Name) == true)
 	{
-		Time = (*Timers_It).second.ElapsedTime;
+		Time = ((*Instance().Timers_It).second.t2.QuadPart - (*Instance().Timers_It).second.t1.QuadPart) * 1000.0 / Instance().Frequency.QuadPart;
 		Success = true;
 	}
 	return Success;
